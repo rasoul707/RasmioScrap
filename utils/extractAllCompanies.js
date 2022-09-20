@@ -53,6 +53,16 @@ function sumOfArray(array) {
 }
 
 
+// async function yyy() {
+//     try {
+//         const GetSummary = await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetSummary?companyId=2`);
+//         const summary = GetSummary?.data?.data?.companySummary
+//     } catch (err) {
+//         console.log("err", err.response.status, "yyy")
+//     }
+// }
+
+
 async function extractData(code) {
     try {
         const GetSummary = await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetSummary?companyId=${code}`)
@@ -75,8 +85,7 @@ async function extractData(code) {
             lastNewsDate: news[0]?.newsPaperDate ? new Date(news[0]?.newsPaperDate).toLocaleDateString('fa-IR') : "",
         }
     } catch (error) {
-        console.log(error)
-        if (error.response.status === 400) {
+        if (error?.response?.status === 400) {
             console.log("ProxySwitch")
             await reloadProxy()
             return await extractData(code)
@@ -113,3 +122,7 @@ const validate = async (outputName, start, end) => {
         validate(outputName, cat, cat + perStep)
     }
 })()
+
+
+
+
