@@ -57,16 +57,12 @@ async function extractData(code) {
     try {
         const GetSummary = await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetSummary?companyId=${code}`)
         const summary = GetSummary?.data?.data?.companySummary
-
         const GetFinancial = await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetFinancial?companyId=${code}`)
         const financial = GetFinancial?.data?.data?.financial
-
         const GetProducts = await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetProducts?companyId=${code}`)
         const products = GetProducts?.data?.data?.companyProductAndService
-
         const GetNews = await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetAllNews?companyId=${code}`)
         const news = GetNews?.data?.data?.news
-
         return {
             id: summary.id,
             title: summary.title,
@@ -79,6 +75,7 @@ async function extractData(code) {
             lastNewsDate: news[0]?.newsPaperDate ? new Date(news[0]?.newsPaperDate).toLocaleDateString('fa-IR') : "",
         }
     } catch (error) {
+        console.log(error)
         if (error.response.status === 400) {
             console.log("ProxySwitch")
             await reloadProxy()
@@ -111,8 +108,8 @@ const validate = async (outputName, start, end) => {
     console.log(actionTitle + ":", "starting")
     await reloadProxy()
     const perStep = 1000000
-    for (let cat = Math.pow(10, 10) + 1; cat < Math.pow(10, 10) + Math.pow(10, 10); cat += perStep) {
+    for (let cat = Math.pow(10, 10) + 1; cat < Math.pow(10, 10) + 20; cat += perStep) {
         const outputName = `data-${cat}_${cat + perStep - 1}.txt`;
-        validate(outputName, cat, cat + 30)
+        validate(outputName, cat, cat + perStep)
     }
 })()
