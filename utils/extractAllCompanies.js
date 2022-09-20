@@ -107,7 +107,7 @@ const validate = async (outputName, start, end) => {
     console.log(actionTitle + ":", "starting")
     await reloadProxy()
     const perStep = 1000000
-    for (let cat = Math.pow(10, 10) + 1; cat < Math.pow(10, 10) + Math.pow(10, 11); cat += perStep) {
+    for (let cat = Math.pow(10, 10) + 1; cat < Math.pow(10, 10) + Math.pow(10, 10); cat += perStep) {
         const outputName = `data-${cat}_${cat + perStep - 1}.txt`;
         validate(outputName, cat, cat + perStep)
     }
