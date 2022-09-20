@@ -15,6 +15,7 @@ const axiosConfig = {
 };
 const axiosInstance = axios.create(axiosConfig);
 const fs = require('fs');
+const { exit } = require('process');
 
 
 
@@ -22,11 +23,13 @@ async function reloadProxy() {
     exec("service tor reload", async (error, stdout, stderr) => {
         try {
             const myip = await axiosInstance.get(`http://checkip.amazonaws.com/`)
-            fs.appendFileSync("iplist.txt", myip?.data, { encoding: "utf-8" })
+            fs.appendFileSync("iplist.log", myip?.data, { encoding: "utf-8" })
             console.log("New ip:", myip?.data)
         } catch (err) {
-            fs.appendFileSync("iplist.txt", "err", { encoding: "utf-8" })
-            await reloadProxy()
+            fs.appendFileSync("iplist.log", "err\n", { encoding: "utf-8" })
+            fs.appendFileSync("iplist.errors.log", err + "\n" + "****\n", { encoding: "utf-8" })
+            // await reloadProxy()
+            exit(1)
         }
     });
 }
@@ -90,6 +93,7 @@ async function extractData(code) {
             lastNewsDate: news[0]?.newsPaperDate ? new Date(news[0]?.newsPaperDate).toLocaleDateString('fa-IR') : "",
         }
     } catch (error) {
+        fs.appendFileSync("extractData.errors.log", error + "\n" + "****\n", { encoding: "utf-8" })
         if (error?.response?.status === 400) {
             console.log("ProxySwitch")
             await reloadProxy()
