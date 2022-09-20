@@ -14,14 +14,14 @@ const axiosConfig = {
     httpAgent: agent
 };
 const axiosInstance = axios.create(axiosConfig);
-
+const fs = require('fs');
 
 
 
 async function reloadProxy() {
     exec("service tor reload", async (error, stdout, stderr) => {
         const myip = await axiosInstance.get(`http://checkip.amazonaws.com/`)
-        fs.appendFileSync("iplist.txt", myip.data + "\n", { encoding: "utf-8" })
+        fs.appendFileSync("iplist.txt", myip.data, { encoding: "utf-8" })
         console.log("New ip:", myip.data)
     });
 }
@@ -110,8 +110,7 @@ const validate = async (outputName, start, end) => {
     const actionTitle = "Extract all companies"
     console.log(actionTitle + ":", "starting")
     await reloadProxy()
-    const perStep = 100000
-    const startFrom = 860176635
+    const perStep = 1000000
     for (let cat = Math.pow(10, 10) + 1; cat < Math.pow(10, 11); cat += perStep) {
         const outputName = `data-${cat}_${cat + perStep - 1}.txt`;
         validate(outputName, cat, cat + 30)
