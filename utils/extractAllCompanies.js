@@ -16,22 +16,23 @@ const axiosConfig = {
 const axiosInstance = axios.create(axiosConfig);
 const fs = require('fs');
 const { exit } = require('process');
-
-
-
 async function reloadProxy() {
-    exec("service tor reload", async (error, stdout, stderr) => {
-        try {
-            const myip = await axiosInstance.get(`https://ifconfig.io/ip`)
-            fs.appendFileSync("iplist.log", myip?.data, { encoding: "utf-8" })
-            console.log("New ip:", myip?.data)
-        } catch (err) {
-            fs.appendFileSync("iplist.log", "err\n", { encoding: "utf-8" })
-            fs.appendFileSync("iplist.errors.log", err + "\n" + "****\n", { encoding: "utf-8" })
-            // await reloadProxy()
-            exit(1)
-        }
-    });
+    return new Promise((resolve, reject) => {
+        exec("service tor reload", async (error, stdout, stderr) => {
+            try {
+                const myip = await axiosInstance.get(`https://ifconfig.io/ip`)
+                fs.appendFileSync("iplist.log", myip?.data, { encoding: "utf-8" })
+                console.log("New ip:", myip?.data)
+                resolve(true)
+            } catch (err) {
+                console.log(err)
+                fs.appendFileSync("iplist.log", "err\n", { encoding: "utf-8" })
+                fs.appendFileSync("iplist.errors.log", err + "\n" + "****\n", { encoding: "utf-8" })
+                resolve(await reloadProxy())
+                exit(1)
+            }
+        });
+    })
 }
 
 
