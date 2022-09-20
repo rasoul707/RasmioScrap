@@ -26,7 +26,7 @@ async function reloadProxy() {
             console.log("New ip:", myip?.data)
         } catch (err) {
             fs.appendFileSync("iplist.txt", "err", { encoding: "utf-8" })
-            reloadProxy()
+            await reloadProxy()
         }
     });
 }
