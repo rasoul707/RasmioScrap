@@ -22,7 +22,7 @@ const { exit } = require('process');
 async function reloadProxy() {
     exec("service tor reload", async (error, stdout, stderr) => {
         try {
-            const myip = await axiosInstance.get(`http://checkip.amazonaws.com/`)
+            const myip = await axiosInstance.get(`https://ifconfig.io/ip`)
             fs.appendFileSync("iplist.log", myip?.data, { encoding: "utf-8" })
             console.log("New ip:", myip?.data)
         } catch (err) {
