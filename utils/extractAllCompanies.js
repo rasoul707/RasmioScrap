@@ -11,6 +11,7 @@ const axios = require('axios');
 
 
 function checkCode(code) {
+    code = code.toString()
     var L = code.length;
     if (L < 11 || parseInt(code, 10) == 0) return false;
     if (parseInt(code.substr(3, 6), 10) == 0) return false;
@@ -66,24 +67,32 @@ async function extractData(code) {
 }
 
 
+const validate = async (outputName, start, end) => {
+    console.log(">", outputName, "started")
+    let validCount = 0
+    for (let code = start; code < end; code++) {
+        const isValid = checkCode(code)
+        const companyData = isValid ? await extractData(code) : null
+        const haveData = isValid && companyData !== null
+        if (!haveData) continue
+        validCount++
+        const d = companyData
+        const data = [d.id, d.title, d.status, d.registrationTypeTitle, d.lastFinancial, d.totalCurrencies, d.personnel, d.website, d.lastNewsDate]
+        saveOutput(outputName, data.join(",") + "\n")
+    }
+    console.log(">", outputName, "finished", `(${validCount})`)
+}
+
+
 (async () => {
     const actionTitle = "Extract all companies"
     console.log(actionTitle + ":", "starting")
-    const outputName = `data.csv`
-    let data = [["شناسه", "اسم", "وضعیت", "نوع شرکت", "آخرین سرمایه ثبتی", "محموع ارز دریافتی", "تعداد پرسنل", "وبسایت", "تاریخ آخرین آگهی"]]
-    const outputPath = saveOutput(outputName, data.join("\n"))
-
-    for (let code = Math.pow(10, 10); code < Math.pow(10, 11); code++) {
-        // let code = 10100253038
-        const isValid = checkCode(code.toString())
-        const companyData = isValid ? await extractData(code) : null
-        const haveData = isValid && companyData !== null
-        console.log(">", code, haveData ? "valid" : "not valid")
-        if (!haveData) continue
-        const d = companyData
-        data.push([d.id, d.title, d.status, d.registrationTypeTitle, d.lastFinancial, d.totalCurrencies, d.personnel, d.website, d.lastNewsDate])
-        saveOutput(outputName, data.map(e => e.join(",")).join("\n"))
-    }
-    console.log(actionTitle + ":", "completed", `(${data.length})`)
-    console.log(`output = ${outputPath}`)
+    const perStep = 100000
+    const startFrom = 860176635
+    // for (let cat = Math.pow(10, 10) + 1; cat < Math.pow(10, 11); cat += perStep) {
+    // const outputName = `data-${cat}_${cat + perStep - 1}.txt`;
+    const outputName = `data-.txt`;
+    cat = startFrom + Math.pow(10, 10) + 1
+    validate(outputName, cat, cat + 30)
+    // }
 })()

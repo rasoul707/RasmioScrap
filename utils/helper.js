@@ -21,7 +21,8 @@ const listCommandItems = (list) => {
 const saveOutput = (file, data) => {
     const output = `outputs/${file}`
     if (!fs.existsSync(`outputs`)) fs.mkdirSync(`outputs`)
-    fs.writeFileSync(output, '\ufeff' + data, { encoding: "utf-8" })
+    if (!fs.existsSync(output)) fs.writeFileSync(output, '\ufeff', { encoding: "utf-8" })
+    fs.appendFileSync(output, data, { encoding: "utf-8" })
     return output
 }
 
