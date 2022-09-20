@@ -8,9 +8,6 @@ const { saveOutput } = require('./helper');
 const axios = require('axios');
 const { SocksProxyAgent } = require('socks-proxy-agent');
 const { exec } = require("child_process");
-
-
-
 const agent = new SocksProxyAgent('socks5h://127.0.0.1:9050');
 const axiosConfig = {
     httpsAgent: agent,
@@ -22,16 +19,10 @@ const axiosInstance = axios.create(axiosConfig);
 
 
 async function reloadProxy() {
-    exec("service tor reload", (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
+    exec("service tor reload", async (error, stdout, stderr) => {
+        const myip = await axiosInstance.get(`http://checkip.amazonaws.com/`)
+        fs.appendFileSync("iplist.txt", myip.data + "\n", { encoding: "utf-8" })
+        console.log("New ip:", myip.data)
     });
 }
 
@@ -64,16 +55,16 @@ function sumOfArray(array) {
 
 async function extractData(code) {
     try {
-        const GetSummary = await await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetSummary?companyId=${code}`)
+        const GetSummary = await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetSummary?companyId=${code}`)
         const summary = GetSummary?.data?.data?.companySummary
 
-        const GetFinancial = await await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetFinancial?companyId=${code}`)
+        const GetFinancial = await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetFinancial?companyId=${code}`)
         const financial = GetFinancial?.data?.data?.financial
 
-        const GetProducts = await await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetProducts?companyId=${code}`)
+        const GetProducts = await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetProducts?companyId=${code}`)
         const products = GetProducts?.data?.data?.companyProductAndService
 
-        const GetNews = await await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetAllNews?companyId=${code}`)
+        const GetNews = await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetAllNews?companyId=${code}`)
         const news = GetNews?.data?.data?.news
 
         return {
@@ -118,12 +109,11 @@ const validate = async (outputName, start, end) => {
 (async () => {
     const actionTitle = "Extract all companies"
     console.log(actionTitle + ":", "starting")
+    await reloadProxy()
     const perStep = 100000
     const startFrom = 860176635
     for (let cat = Math.pow(10, 10) + 1; cat < Math.pow(10, 11); cat += perStep) {
         const outputName = `data-${cat}_${cat + perStep - 1}.txt`;
-        // const outputName = `data-.txt`;
-        // cat = startFrom + Math.pow(10, 10) + 1
         validate(outputName, cat, cat + 30)
     }
 })()
