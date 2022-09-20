@@ -106,6 +106,7 @@ const validate = async (outputName, start, end) => {
         const isValid = checkCode(code)
         const companyData = isValid ? await extractData(code) : null
         const haveData = isValid && companyData !== null
+        console.log(">", code, haveData)
         if (!haveData) continue
         validCount++
         const d = companyData
