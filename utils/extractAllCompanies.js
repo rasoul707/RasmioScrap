@@ -120,10 +120,10 @@ const validate = async (outputName, start, end) => {
     console.log(actionTitle + ":", "starting")
     const perStep = 100000
     const startFrom = 860176635
-    // for (let cat = Math.pow(10, 10) + 1; cat < Math.pow(10, 11); cat += perStep) {
-    // const outputName = `data-${cat}_${cat + perStep - 1}.txt`;
-    const outputName = `data-.txt`;
-    cat = startFrom + Math.pow(10, 10) + 1
-    validate(outputName, cat, cat + 30)
-    // }
+    for (let cat = Math.pow(10, 10) + 1; cat < Math.pow(10, 11); cat += perStep) {
+        const outputName = `data-${cat}_${cat + perStep - 1}.txt`;
+        // const outputName = `data-.txt`;
+        // cat = startFrom + Math.pow(10, 10) + 1
+        validate(outputName, cat, cat + 30)
+    }
 })()
