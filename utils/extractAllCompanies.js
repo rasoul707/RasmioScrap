@@ -88,7 +88,7 @@ async function extractData(code) {
             lastNewsDate: news[0]?.newsPaperDate ? new Date(news[0]?.newsPaperDate).toLocaleDateString('fa-IR') : "",
         }
     } catch (error) {
-        fs.appendFileSync("extractData.errors.log", error + "\n" + "****\n", { encoding: "utf-8" })
+        if (error?.response?.status !== 500) fs.appendFileSync("extractData.errors.log", error + "\n" + "****\n", { encoding: "utf-8" })
         if (error?.response?.status === 400) {
             console.log("ProxySwitch")
             await reloadProxy()
