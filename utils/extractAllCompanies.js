@@ -20,9 +20,13 @@ const fs = require('fs');
 
 async function reloadProxy() {
     exec("service tor reload", async (error, stdout, stderr) => {
-        const myip = await axiosInstance.get(`http://checkip.amazonaws.com/`)
-        fs.appendFileSync("iplist.txt", myip.data, { encoding: "utf-8" })
-        console.log("New ip:", myip.data)
+        try {
+            const myip = await axiosInstance.get(`http://checkip.amazonaws.com/`)
+            fs.appendFileSync("iplist.txt", myip?.data, { encoding: "utf-8" })
+            console.log("New ip:", myip?.data)
+        } catch (err) {
+            fs.appendFileSync("iplist.txt", "err", { encoding: "utf-8" })
+        }
     });
 }
 
@@ -122,7 +126,5 @@ const validate = async (outputName, start, end) => {
         validate(outputName, cat, cat + perStep)
     }
 })()
-
-
 
 
