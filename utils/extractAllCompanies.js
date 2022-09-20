@@ -16,6 +16,8 @@ const axiosConfig = {
 const axiosInstance = axios.create(axiosConfig);
 const fs = require('fs');
 const { exit } = require('process');
+
+
 async function reloadProxy() {
     return new Promise((resolve, reject) => {
         exec("service tor reload", async (error, stdout, stderr) => {
@@ -29,7 +31,6 @@ async function reloadProxy() {
                 fs.appendFileSync("iplist.log", "err\n", { encoding: "utf-8" })
                 fs.appendFileSync("iplist.errors.log", err + "\n" + "****\n", { encoding: "utf-8" })
                 resolve(await reloadProxy())
-                exit(1)
             }
         });
     })
@@ -62,14 +63,7 @@ function sumOfArray(array) {
 }
 
 
-// async function yyy() {
-//     try {
-//         const GetSummary = await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetSummary?companyId=2`);
-//         const summary = GetSummary?.data?.data?.companySummary
-//     } catch (err) {
-//         console.log("err", err.response.status, "yyy")
-//     }
-// }
+
 
 
 async function extractData(code) {
@@ -126,11 +120,14 @@ const validate = async (outputName, start, end) => {
     const actionTitle = "Extract all companies"
     console.log(actionTitle + ":", "starting")
     await reloadProxy()
-    const perStep = 1000000
-    for (let cat = Math.pow(10, 10) + 1; cat < Math.pow(10, 10) + Math.pow(10, 10); cat += perStep) {
-        const outputName = `data-${cat}_${cat + perStep - 1}.txt`;
-        validate(outputName, cat, cat + perStep)
-    }
+    // const perStep = 1000000
+    // for (let cat = Math.pow(10, 10) + 1; cat < Math.pow(10, 10) + 1000; cat += perStep) {
+    // const outputName = `data-${cat}_${cat + perStep - 1}.txt`;
+    const outputName = "data.txt"
+    const start = Math.pow(10, 10) + 1
+    const end = Math.pow(10, 11)
+    validate(outputName, start, end)
+    // }
 })()
 
 
