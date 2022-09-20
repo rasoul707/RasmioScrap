@@ -6,8 +6,34 @@
 
 const { saveOutput } = require('./helper');
 const axios = require('axios');
+const { SocksProxyAgent } = require('socks-proxy-agent');
+const { exec } = require("child_process");
 
 
+
+const agent = new SocksProxyAgent('socks5h://127.0.0.1:9050');
+const axiosConfig = {
+    httpsAgent: agent,
+    httpAgent: agent
+};
+const axiosInstance = axios.create(axiosConfig);
+
+
+
+
+async function reloadProxy() {
+    exec("service tor reload", (error, stdout, stderr) => {
+        if (error) {
+            console.log(`error: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.log(`stderr: ${stderr}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+    });
+}
 
 
 function checkCode(code) {
@@ -38,16 +64,16 @@ function sumOfArray(array) {
 
 async function extractData(code) {
     try {
-        const GetSummary = await await axios.get(`https://dalahou.rasm.io/api/v2/Companies/GetSummary?companyId=${code}`)
+        const GetSummary = await await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetSummary?companyId=${code}`)
         const summary = GetSummary?.data?.data?.companySummary
 
-        const GetFinancial = await await axios.get(`https://dalahou.rasm.io/api/v2/Companies/GetFinancial?companyId=${code}`)
+        const GetFinancial = await await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetFinancial?companyId=${code}`)
         const financial = GetFinancial?.data?.data?.financial
 
-        const GetProducts = await await axios.get(`https://dalahou.rasm.io/api/v2/Companies/GetProducts?companyId=${code}`)
+        const GetProducts = await await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetProducts?companyId=${code}`)
         const products = GetProducts?.data?.data?.companyProductAndService
 
-        const GetNews = await await axios.get(`https://dalahou.rasm.io/api/v2/Companies/GetAllNews?companyId=${code}`)
+        const GetNews = await await axiosInstance.get(`https://dalahou.rasm.io/api/v2/Companies/GetAllNews?companyId=${code}`)
         const news = GetNews?.data?.data?.news
 
         return {
@@ -62,6 +88,11 @@ async function extractData(code) {
             lastNewsDate: news[0]?.newsPaperDate ? new Date(news[0]?.newsPaperDate).toLocaleDateString('fa-IR') : "",
         }
     } catch (error) {
+        if (error.response.status === 400) {
+            console.log("ProxySwitch")
+            await reloadProxy()
+            return await extractData(code)
+        }
         return null
     }
 }
